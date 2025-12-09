@@ -29,7 +29,7 @@ Vamos simular as trajetórias dos sistemas de 3 maneiras diferentes:
 """
 
 # ╔═╡ c5aa2d0e-b48e-4d4c-9243-28160f44311e
-md"Cada um desses métodos é mais refinado que o anterior, de modo que as curvas serão notávelmente mais suaves, mesmo com os parâmetros iguais, ao longo do documento."
+md"Cada um desses métodos é mais refinado que o anterior, de modo que as soluções estimadas são cada vez mais precisas."
 
 # ╔═╡ f531dd66-28dd-46ce-a3be-b3a16ccf7b01
 md"# Método 1: Euler"
@@ -51,6 +51,9 @@ end;
 # ╔═╡ 73066d5b-99b3-4b7f-862b-bc794a5dc080
 md"Agora, construiremos a função step!. Primeiro, escreveremos o sistema e depois, utilizando o método de Euler, iremos estimar o próximo valor das coordenadas a partir do ponto anterior e o valor da derivada na direção desejada."
 
+# ╔═╡ ce2f8aab-aab3-4bfe-baa6-424c383a133e
+md"*Obs.*: Em Julia, o ! no final do nome de uma função é indicativo de uma função mutadora, i.e., ela altera o valor de suas próprias variáveis."
+
 # ╔═╡ 00754d1a-f19e-446e-ac5a-eee3117108bd
 function step_euler!(l::Lorenz)
     dx = l.σ * (l.y - l.x)
@@ -65,24 +68,24 @@ end;
 # ╔═╡ 76e41d26-bbff-473a-ac45-2987c05ff3e4
 md"Faremos então o código para plotar o caminho:"
 
-# ╔═╡ a530fe37-708d-4d2a-9ce0-5be590e26e28
-attractor_eu = Lorenz();
-
 # ╔═╡ 2c0a16cf-709d-4b8c-9d18-6c1b465d9161
-plt_euler = plot3d(
-    1,
-    xlim = (-30, 30),
-    ylim = (-30, 30),
-    zlim = (0, 60),
-    title = "Lorenz Attractor (Euler)",
-    marker = 2,
-);
+begin
+	attractor_eu = Lorenz();
+	plt_euler = plot3d(
+	    1,
+	    xlim = (-30, 30),
+	    ylim = (-30, 30),
+	    zlim = (0, 60),
+	    title = "Lorenz Attractor (Euler)",
+	    marker = 1,
+	)
+end;
 
 # ╔═╡ d1bbf5ac-ac80-442f-8d7e-e10c033351a7
 md"### Por fim, temos o .gif da nossa primeira simulação!"
 
 # ╔═╡ 4e5dc151-0a0a-440c-9710-5ec974b07683
-@gif for i=1:2000
+@gif for i=1:1500
     step_euler!(attractor_eu)
     push!(plt_euler, attractor_eu.x, attractor_eu.y, attractor_eu.z)
 end every 10
@@ -163,12 +166,12 @@ md"Agora iremos utilizar o .pkg DifferentialEquations e seus métodos para resol
 
 # ╔═╡ d366078c-efaf-4c6f-922c-555a7903ca22
 function lorenz_de!(du, u, p, t)
-    σ, ρ, β = p
+    σ, r, b = p
     x, y, z = u
     
     du[1] = σ * (y - x)         # dx/dt
-    du[2] = x * (ρ - z) - y     # dy/dt
-    du[3] = x * y - β * z       # dz/dt
+    du[2] = x * (r - z) - y     # dy/dt
+    du[3] = x * y - b * z       # dz/dt
 end;
 
 # ╔═╡ 14a2c972-2d4c-459f-b571-b52e856c691b
@@ -178,7 +181,7 @@ md"Teremos de definir as condições iniciais novamente, mas em outro formato:"
 begin
 	u0 = [1.0, 1.0, 1.0]        # Condição inicial [x, y, z]
 	tspan = (0.0, 30.0)         # Intervalo de tempo (inicio, fim)
-	p = [10.0, 28.0, 8/3]       # Parâmetros [σ, ρ, β]
+	p = [10.0, 28.0, 8/3]       # Parâmetros [σ, r, b]
 end;
 
 # ╔═╡ 72b09dcd-ca1d-4172-aa2d-680293a15d8d
@@ -2880,9 +2883,9 @@ version = "1.9.2+0"
 # ╟─3d91f4fa-83da-4dba-b57e-d3047f25949d
 # ╠═c3316c07-bb4e-409d-9183-a8090e3ea131
 # ╟─73066d5b-99b3-4b7f-862b-bc794a5dc080
+# ╟─ce2f8aab-aab3-4bfe-baa6-424c383a133e
 # ╠═00754d1a-f19e-446e-ac5a-eee3117108bd
 # ╟─76e41d26-bbff-473a-ac45-2987c05ff3e4
-# ╠═a530fe37-708d-4d2a-9ce0-5be590e26e28
 # ╠═2c0a16cf-709d-4b8c-9d18-6c1b465d9161
 # ╟─d1bbf5ac-ac80-442f-8d7e-e10c033351a7
 # ╠═4e5dc151-0a0a-440c-9710-5ec974b07683
@@ -2892,10 +2895,10 @@ version = "1.9.2+0"
 # ╠═9043da54-6c7f-4d33-985b-a7bd6cc7350c
 # ╟─10bb7922-d6af-49ec-809d-ecf14978b091
 # ╠═343fafa3-90d5-49db-a009-784765ccc6ae
-# ╠═eb8eaa6e-e9f5-48c2-9dcc-59395bf38364
+# ╟─eb8eaa6e-e9f5-48c2-9dcc-59395bf38364
 # ╠═ec9c8e99-2620-4e7a-b349-c5b24ae72600
 # ╟─3c00ee63-3114-462b-95ba-98393f0575ff
-# ╠═72db1b68-1992-4fac-afc8-c048b9850318
+# ╟─72db1b68-1992-4fac-afc8-c048b9850318
 # ╟─7161c044-6268-4a54-9535-e1d2bf3b709c
 # ╟─b5d3cbbf-c4bc-4a05-999f-bbda1c87b8b1
 # ╠═d366078c-efaf-4c6f-922c-555a7903ca22
@@ -2903,9 +2906,9 @@ version = "1.9.2+0"
 # ╠═e6c09cdf-f7a7-4c8b-938b-d74d12cf787a
 # ╟─72b09dcd-ca1d-4172-aa2d-680293a15d8d
 # ╠═3cbc0c0d-fe47-4516-a0e2-e81fa0a282ac
-# ╠═773f62b7-e7dc-45ae-976f-d75364b46a91
+# ╟─773f62b7-e7dc-45ae-976f-d75364b46a91
 # ╠═9b9daae2-e081-477c-ab51-30377960ee04
 # ╟─52f1e87c-1abb-493c-acac-82276f95bd8c
-# ╠═66a679b3-cec8-45ec-b84b-ebc87cfb4730
+# ╟─66a679b3-cec8-45ec-b84b-ebc87cfb4730
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
